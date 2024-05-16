@@ -1,23 +1,21 @@
 import express from "express";
-import mongoose from "mongoose";
 import { env } from "./config.js";
-import authorizeUserRoute from "./routes/authorizeUserRoute.js";
+import { connectDB } from "./config/db.js";
+import { authorizeUserRoute } from "./routes/authorizeUserRoute.js";
+import { userRoutes } from "./routes/userRoutes.js";
 
 const app = express();
 
+connectDB();
+
 // Middleware
 app.use(express.json());
-app.use("/auth/callback", discordRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api", authorizeUserRoute);
 
 // Start server
 app.listen(env.PORT, () => {
   console.log(`Server is running on port ${env.PORT}`);
 });
 
-// Connect to MongoDB
-const dbURI = env.MONGODB_URI;
-
-mongoose
-  .connect(dbURI)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.log(err));
+export { app };

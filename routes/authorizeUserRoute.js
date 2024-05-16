@@ -21,10 +21,10 @@ router.get("/authorize", extractToken, async (req, res) => {
     const response = await fetch(
       `https://discord.com/api/users/@me/guilds/${env.DISCORD_SERVER_ID}/member`,
       {
-        method: "GET",
         headers: {
           Authorization: req.headers.authorization,
         },
+        method: "GET",
       },
     );
 
@@ -44,4 +44,4 @@ router.get("/authorize", extractToken, async (req, res) => {
   }
 });
 
-export default router;
+export { router as authorizeUserRoute };
