@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --write .",
-    "test": "NODE_ENV=test mocha"
+    "test": "NODE_ENV=test mocha",
+    "seed": "node config/seedDb.js"
   },
   "author": "Karim Dallas-Newell",
   "license": "ISC",
