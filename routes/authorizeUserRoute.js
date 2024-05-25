@@ -1,22 +1,19 @@
 import express from "express";
 import fetch from "node-fetch";
 import { env } from "../config.js";
+import { User } from "../models/User.js";
 
 const router = express.Router();
 
-const extractToken = (req, res, next) => {
-  const bearerHeader = req.headers.authorization;
+router.post("/authorize", async (req, res) => {
+  const { supabaseUserId } = req.body;
 
-  if (!bearerHeader) {
-    return res
-      .status(403)
-      .json({ message: "No token provided. Access is forbidden." });
+  const user = await User.findOne({ supabaseUserId }).exec();
+
+  if (user) {
+    return res.status(200).json({ authorized: true });
   }
 
-  next();
-};
-
-router.get("/authorize", extractToken, async (req, res) => {
   try {
     const response = await fetch(
       `https://discord.com/api/users/@me/guilds/${env.DISCORD_SERVER_ID}/member`,
@@ -28,8 +25,17 @@ router.get("/authorize", extractToken, async (req, res) => {
       },
     );
 
+    const data = await response.json();
+
     if (response.status === 200) {
-      return res.status(200).json({ authorized: true });
+      const newUser = new User({
+        supabaseUserId,
+        discordUserId: data.user.id,
+      });
+
+      await newUser.save();
+
+      return res.status(201).json({ authorized: true });
     }
 
     if (response.status === 401) {
@@ -40,7 +46,7 @@ router.get("/authorize", extractToken, async (req, res) => {
       return res.status(403).json({ authorized: false });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 });
 

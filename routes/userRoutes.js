@@ -17,25 +17,52 @@ router.get("/check-profile/:supabaseId", async (req, res) => {
   }
 });
 
-router.post("/onboard", async (req, res) => {
-  const {
-    username,
-    supabaseId,
-    discordId,
-    reviewWeights = {
-      plot: 10,
-      acting: 10,
-      visuals: 10,
-      audio: 10,
-      pacing: 10,
-    },
-  } = req.body;
+router.get("/find/:discordUserId", async (req, res) => {
+  const { discordUserId } = req.params;
   try {
-    const user = new User({ username, supabaseId, discordId, reviewWeights });
-    await user.save();
-    res.status(201).json(user);
+    const user = await User.findOne({ supabaseId: discordUserId });
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
+  }
+});
+
+//check if user is onboarded
+router.get("/onboard/:discordUserId", async (req, res) => {
+  const { discordUserId } = req.params;
+  try {
+    const user = await User.findOne({ discordUserId });
+    if (user) {
+      res.json({ onboarded: user.onboarded });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post("/onboard", async (req, res) => {
+  const { discordUserId, reviewWeights } = req.body;
+  try {
+    const user = await User.findOneAndUpdate(
+      { discordUserId },
+      { reviewWeights, onboarded: true },
+      { new: true, fields: ["onboarded"] },
+    );
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+    } else {
+      res.json(user);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
   }
 });
 

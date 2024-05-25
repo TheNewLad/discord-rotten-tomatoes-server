@@ -28,7 +28,7 @@ describe("User Routes", () => {
         supabaseId: "existingId",
         reviewWeights: {},
         username: "username",
-        discordId: "discordId",
+        discordUserId: "discordUserId",
       });
       await user.save();
       const res = await chai
@@ -46,7 +46,7 @@ describe("User Routes", () => {
         .send({
           supabaseId: "newUserId",
           reviewWeights: { plot: 1, acting: 2 },
-          discordId: "discordId",
+          discordUserId: "discordUserId",
           username: "username",
         });
       expect(res).to.have.status(201);
