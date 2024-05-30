@@ -8,14 +8,15 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --write .",
-    "seed": "node src/config/seedDb.js",
+    "seed": "node config/seedDb.js",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "test:cov": "vitest run --coverage"
   },
   "author": "Karim Dallas-Newell",
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.2.0",
+    "@vitest/coverage-v8": "^1.6.0",
     "dotenv": "^16.4.5",
     "eslint": "^9.2.0",
     "globals": "^15.2.0",

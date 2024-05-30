@@ -4,5 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     files: ["test/**/*.test.js"],
+    reporter: ["html"],
+    outputFile: "./coverage/report.html",
   },
 });
