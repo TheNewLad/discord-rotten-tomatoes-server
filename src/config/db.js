@@ -1,6 +1,6 @@
 // Connect to MongoDB
+import { env } from "#config/environment.js";
 import mongoose from "mongoose";
-import { env } from "../config.js";
 
 export const connectDB = async () => {
   try {

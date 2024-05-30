@@ -1,7 +1,7 @@
+import { connectDB } from "#config/db";
+import { env } from "#config/environment";
+import { ApiRoutes } from "#routes/api.routes";
 import express from "express";
-import { env } from "./config.js";
-import { connectDB } from "./config/db.js";
-import { ApiRoutes } from "./routes/api.routes.js";
 
 const app = express();
 

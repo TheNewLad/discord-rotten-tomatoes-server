@@ -1,6 +1,6 @@
+import { env } from "#config/environment";
+import { UserModel } from "#models/user.model";
 import mongoose from "mongoose";
-import { env } from "../config.js";
-import { UserModel } from "../models/user.model.js";
 
 const seedUsers = [
   {
