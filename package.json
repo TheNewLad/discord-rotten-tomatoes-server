@@ -32,6 +32,7 @@
   "imports": {
     "#config/*": "./src/config/*.js",
     "#controllers/*": "./src/controllers/*.js",
+    "#middleware/*": "./src/middleware/*.js",
     "#models/*": "./src/models/*.js",
     "#routes/*": "./src/routes/*.js"
   }
