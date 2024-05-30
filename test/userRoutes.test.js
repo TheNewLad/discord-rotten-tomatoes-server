@@ -1,14 +1,16 @@
 import { expect, use } from "chai";
 import chaiHttp from "chai-http";
-import { after, beforeEach, describe, it } from "mocha";
+import { after, beforeEach, context, describe, it } from "mocha";
 import { app } from "../index.js";
-import { User } from "../models/User.js";
+import { UserModel } from "../models/user.model.js";
 
 const chai = use(chaiHttp);
 
-describe("User Routes", () => {
+describe("UserModel Routes", () => {
+  const endpoint = "/api/users";
+
   beforeEach(async () => {
-    await User.deleteMany({});
+    await UserModel.deleteMany({});
   });
 
   after(() => {

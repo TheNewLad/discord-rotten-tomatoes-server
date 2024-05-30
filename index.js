@@ -1,8 +1,7 @@
 import express from "express";
 import { env } from "./config.js";
 import { connectDB } from "./config/db.js";
-import { authorizeUserRoute } from "./routes/authorizeUserRoute.js";
-import { userRoutes } from "./routes/userRoutes.js";
+import { router } from "./routes/api.routes.js";
 
 const app = express();
 
@@ -10,8 +9,7 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-app.use("/api/users", userRoutes);
-app.use("/api", authorizeUserRoute);
+app.use("/api", router);
 
 // Start server
 app.listen(env.PORT, () => {

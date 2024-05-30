@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { env } from "../config.js";
-import { User } from "../models/User.js";
+import { UserModel } from "../models/user.model.js";
 
 const seedUsers = [
   {
@@ -23,11 +23,11 @@ async function seedDB() {
     // Clear existing data
     const userIDsToDelete = seedUsers.map((user) => user.supabaseUserId);
     const query = { supabaseUserId: { $in: userIDsToDelete } };
-    await User.deleteMany(query);
+    await UserModel.deleteMany(query);
     console.log("Cleared existing users");
 
     // Insert seed data
-    await User.insertMany(seedUsers);
+    await UserModel.insertMany(seedUsers);
     console.log("Seed data inserted");
 
     // Close the connection
