@@ -30,7 +30,7 @@
     "nodemon": "^3.1.0"
   },
   "imports": {
-    "#config/*": "./src/config/*.js",
+    "#config/*": "./config/*.js",
     "#controllers/*": "./src/controllers/*.js",
     "#middleware/*": "./src/middleware/*.js",
     "#models/*": "./src/models/*.js",
