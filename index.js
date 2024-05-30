@@ -1,7 +1,7 @@
 import express from "express";
 import { env } from "./config.js";
 import { connectDB } from "./config/db.js";
-import { router } from "./routes/api.routes.js";
+import { ApiRoutes } from "./routes/api.routes.js";
 
 const app = express();
 
@@ -9,7 +9,7 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-app.use("/api", router);
+app.use("/api", ApiRoutes);
 
 // Start server
 app.listen(env.PORT, () => {
