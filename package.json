@@ -8,8 +8,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --write .",
-    "test": "NODE_ENV=test mocha",
-    "seed": "node config/seedDb.js"
+    "seed": "node src/config/seedDb.js",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "author": "Karim Dallas-Newell",
   "license": "ISC",
@@ -22,7 +23,8 @@
     "globals": "^15.2.0",
     "mocha": "^10.4.0",
     "prettier": "^3.2.5",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "vitest": "^1.6.0"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.9",
