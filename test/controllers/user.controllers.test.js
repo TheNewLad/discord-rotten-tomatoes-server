@@ -1,5 +1,8 @@
 import { UserController } from "#controllers/user.controllers";
+import { UserService } from "#services/user.services";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("#services/user.services");
 
 describe("UserController", () => {
   afterEach(() => {
@@ -7,57 +10,47 @@ describe("UserController", () => {
   });
 
   describe("authorizeUser", () => {
-    describe("when no action query param is provided", () => {
-      it("should return 204 no content", () => {
-        const req = { query: {} };
-        const res = {
-          status: vi.fn().mockImplementation(() => ({ end: vi.fn() })),
-          json: vi.fn(),
-          end: vi.fn(),
-        };
-        UserController.authorizeUser(req, res);
-        expect(res.status).toHaveBeenCalledWith(204);
-      });
+    it("should return 204 no content when no action query param is provided", () => {
+      const req = { query: {} };
+      const res = {
+        status: vi.fn().mockReturnValue({ end: vi.fn() }),
+      };
+      UserController.authorizeUser(req, res);
+      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.status().end).toHaveBeenCalled();
     });
 
     describe("when action query param is 'authorize'", () => {
-      describe("when Clerk session ID is provided", () => {
-        describe("when UserService authorizes user without error", () => {
-          vi.mock("#services/user.services", () => ({
-            UserService: {
-              authorizeUser: vi.fn().mockResolvedValue({ authorized: true }),
-            },
-          }));
+      it("should authorize the user when Clerk session ID is provided", async () => {
+        const req = {
+          query: { action: "authorize" },
+          access_token: "session-id",
+        };
+        const res = { json: vi.fn(), status: vi.fn() };
+        UserService.authorizeUser.mockResolvedValue({ authorized: true });
 
-          it("should authorize the user", async () => {
-            const req = {
-              query: { action: "authorize" },
-              access_token: "session-id",
-            };
-            const res = { json: vi.fn(), status: vi.fn() };
+        await UserController.authorizeUser(req, res);
 
-            await UserController.authorizeUser(req, res);
-            expect(res.json).toHaveBeenCalledWith({ authorized: true });
-          });
-        });
+        expect(UserService.authorizeUser).toHaveBeenCalledWith("session-id");
+        expect(res.json).toHaveBeenCalledWith({ authorized: true });
+      });
 
-        describe("when UserService authorizes user with error", () => {
-          it("should return 500 error", async () => {
-            const req = {
-              query: { action: "authorize" },
-            };
-            const json = vi.fn();
-            const res = {
-              status: vi.fn().mockReturnValue({ json }),
-            };
+      it("should return 500 error when UserService throws an error", async () => {
+        const req = {
+          query: { action: "authorize" },
+        };
+        const res = {
+          status: vi.fn().mockReturnValue({ json: vi.fn() }),
+        };
+        UserService.authorizeUser.mockRejectedValue(
+          new Error("Authorization failed"),
+        );
 
-            await UserController.authorizeUser(req, res);
+        await UserController.authorizeUser(req, res);
 
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(json).toHaveBeenCalledWith({
-              message: "Failed to authorize user",
-            });
-          });
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.status().json).toHaveBeenCalledWith({
+          message: "Failed to authorize user",
         });
       });
     });
