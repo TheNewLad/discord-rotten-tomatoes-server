@@ -5,11 +5,17 @@ describe("middleware", () => {
   describe("authenticateRequest", () => {
     it("returns 401 Unauthorized if authorization header is not provided", () => {
       const req = { headers: {} };
-      const res = { status: vi.fn().mockReturnThis(), end: vi.fn() };
+      const res = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      };
       const next = vi.fn();
+
       authenticateRequest(req, res, next);
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.end).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith({
+        message: "No access token provided",
+      });
     });
   });
 

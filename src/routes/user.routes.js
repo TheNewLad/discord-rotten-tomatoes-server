@@ -1,5 +1,5 @@
 import { UserController } from "#controllers/user.controllers";
-import { authenticateRequest, getBearerToken } from "#middleware/";
+import { authenticateRequest, getBearerToken } from "#middleware/index";
 import express from "express";
 
 const router = express.Router();

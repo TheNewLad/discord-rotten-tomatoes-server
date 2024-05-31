@@ -1,7 +1,7 @@
 export const authenticateRequest = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization) {
-    res.status(401).end();
+    return res.status(401).json({ message: "No access token provided" });
   }
   next();
 };
