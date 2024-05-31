@@ -9,7 +9,7 @@
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --write .",
     "seed": "node config/seedDb.js",
-    "test": "vitest",
+    "test": "vitest run",
     "test:cov": "vitest run --coverage"
   },
   "author": "Karim Dallas-Newell",
@@ -35,6 +35,7 @@
     "#controllers/*": "./src/controllers/*.js",
     "#middleware/*": "./src/middleware/*.js",
     "#models/*": "./src/models/*.js",
-    "#routes/*": "./src/routes/*.js"
+    "#routes/*": "./src/routes/*.js",
+    "#services/*": "./src/services/*.js"
   }
 }
