@@ -30,14 +30,4 @@ describe("middleware", () => {
       });
     });
   });
-
-  describe("getBearerToken", () => {
-    it("returns bearer token from authorization header", () => {
-      const req = { headers: { authorization: "Bearer token" } };
-      const next = vi.fn();
-      getBearerToken(req, {}, next);
-      expect(req.access_token).toBe("token");
-      expect(next).toHaveBeenCalled();
-    });
-  });
 });

@@ -3,7 +3,7 @@ import { UserService } from "#services/user.services";
 const authorizeUser = async (req, res) => {
   const { action } = req.query;
   if (action === "authorize") {
-    const clerkSessionId = req.access_token;
+    const clerkSessionId = req.auth.sessionId;
 
     try {
       const { authorized } = await UserService.authorizeUser(clerkSessionId);

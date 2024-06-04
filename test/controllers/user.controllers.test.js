@@ -24,7 +24,7 @@ describe("UserController", () => {
       it("should authorize the user when Clerk session ID is provided", async () => {
         const req = {
           query: { action: "authorize" },
-          access_token: "session-id",
+          auth: { sessionId: "session-id" },
         };
         const res = { json: vi.fn(), status: vi.fn() };
         UserService.authorizeUser.mockResolvedValue({ authorized: true });
@@ -38,6 +38,7 @@ describe("UserController", () => {
       it("should return 500 error when UserService throws an error", async () => {
         const req = {
           query: { action: "authorize" },
+          auth: { sessionId: "session-id" },
         };
         const res = {
           status: vi.fn().mockReturnValue({ json: vi.fn() }),
