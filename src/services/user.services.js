@@ -41,12 +41,6 @@ const authorizeUser = async (clerkSessionId) => {
     const isUserInServer =
       !!(await DiscordService.doesUserExistInServer(discordOauthToken));
 
-    await ClerkService.updateUserMetadata(clerkUserId, {
-      publicMetadata: {
-        authorized: isUserInServer,
-      },
-    });
-
     return { authorized: isUserInServer };
   } catch (error) {
     throw new Error(`Failed to authorize user: ${error}`);

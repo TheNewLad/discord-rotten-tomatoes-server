@@ -1,4 +1,4 @@
-import { authenticateRequest, getBearerToken } from "#middleware/index";
+import { authenticateRequest } from "#middleware/index";
 import { describe, expect, it, vi } from "vitest";
 
 describe("middleware", () => {
@@ -24,7 +24,7 @@ describe("middleware", () => {
       const next = vi.fn();
 
       authenticateRequest(req, res, next);
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         message: "No access token provided",
       });
