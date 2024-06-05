@@ -77,5 +77,16 @@ describe("UserController", () => {
         discordUserId,
       );
     });
+
+    it("should return 500 internal server error when an error occurs", async () => {
+      ClerkService.getUserDiscordAccessToken.mockRejectedValue(new Error());
+
+      await UserController.validateUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.status().json).toHaveBeenCalledWith({
+        message: "Internal server error.",
+      });
+    });
   });
 });
