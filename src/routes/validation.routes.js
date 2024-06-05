@@ -3,6 +3,6 @@ import express from "express";
 
 const router = express.Router();
 
-router.post("/", UserController.validateUser);
+router.get("/", UserController.validateUser);
 
-export { router as UserRoutes };
+export { router as ValidationRoutes };

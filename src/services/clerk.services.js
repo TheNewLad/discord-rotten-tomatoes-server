@@ -18,15 +18,29 @@ const getUserIdFromSession = async (sessionId) => {
   return id;
 };
 
-const getUserDiscordOauthToken = async (userId) =>
-  await clerkClient.users.getUserOauthAccessToken(userId, "oauth_discord");
+const getUserDiscordAccessToken = async (userId) => {
+  const discordOauthProvider = "oauth_discord";
+
+  const userOauthAccessTokens = await clerkClient.users.getUserOauthAccessToken(
+    userId,
+    discordOauthProvider,
+  );
+
+  return userOauthAccessTokens.data.find(
+    (account) => account.provider === discordOauthProvider,
+  )?.token;
+};
+
+const revokeUserSession = async (sessionId) =>
+  clerkClient.sessions.revokeSession(sessionId);
 
 const updateUserMetadata = async (userId, metadata) =>
   await clerkClient.users.updateUserMetadata(userId, metadata);
 
 export const ClerkService = {
   getUserIdFromSession,
-  getUserDiscordOauthToken,
+  getUserDiscordAccessToken,
   getUserMetadata,
+  revokeUserSession,
   updateUserMetadata,
 };

@@ -1,24 +1,26 @@
+import { ClerkService } from "#services/clerk.services";
+import { DiscordService } from "#services/discord.services";
 import { UserService } from "#services/user.services";
 
-const authorizeUser = async (req, res) => {
-  const { action } = req.query;
-  if (action === "authorize") {
-    const clerkSessionId = req.auth.sessionId;
+const validateUser = async (req, res) => {
+  const clerkUserId = req.auth.userId;
+  const clerkSessionId = req.auth.sessionId;
 
-    try {
-      const { authorized } = await UserService.authorizeUser(clerkSessionId);
+  const discordAccessToken =
+    await ClerkService.getUserDiscordAccessToken(clerkUserId);
+  const discordUserPresence =
+    await DiscordService.findUserInServer(discordAccessToken);
 
-      res.json({ authorized });
-    } catch (error) {
-      console.error(`Failed to authorize user: ${error}`);
-
-      res.status(500).json({ message: "Failed to authorize user" });
-    }
-  } else {
-    res.status(204).end(); // No Content
+  if (!discordUserPresence.found) {
+    await ClerkService.revokeUserSession(clerkSessionId);
+    return res.status(403).json({ message: "User is not in Discord server." });
   }
+
+  await UserService.findOrCreateUserByDiscordId(discordUserPresence.id);
+
+  return res.status(200).json({ message: "User is in Discord server." });
 };
 
 export const UserController = {
-  authorizeUser,
+  validateUser,
 };

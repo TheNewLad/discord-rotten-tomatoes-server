@@ -1,3 +1,4 @@
+import { UserModel } from "#models/user.model";
 import { ClerkService } from "./clerk.services.js";
 import { DiscordService } from "./discord.services.js";
 
@@ -17,7 +18,7 @@ const checkIfUserIsAlreadyAuthorized = async (clerkUserId) => {
 
 const getDiscordOauthToken = async (clerkUserId) => {
   const discordOauthToken =
-    await ClerkService.getUserDiscordOauthToken(clerkUserId);
+    await ClerkService.getUserDiscordAccessToken(clerkUserId);
 
   if (!discordOauthToken) {
     throw new Error("User does not have a Discord OAuth token");
@@ -39,7 +40,7 @@ const authorizeUser = async (clerkSessionId) => {
     const discordOauthToken = await getDiscordOauthToken(clerkUserId);
 
     const isUserInServer =
-      !!(await DiscordService.doesUserExistInServer(discordOauthToken));
+      !!(await DiscordService.findUserInServer(discordOauthToken));
 
     return { authorized: isUserInServer };
   } catch (error) {
@@ -47,6 +48,20 @@ const authorizeUser = async (clerkSessionId) => {
   }
 };
 
+const findOrCreateUserByDiscordId = async (discordId) => {
+  // Find user by Discord ID
+  const user = await UserModel.findOne({ discordId });
+
+  // If user doesn't exist, create a new user
+
+  if (!user) {
+    return await UserModel.create({ discordId });
+  }
+
+  return user;
+};
+
 export const UserService = {
   authorizeUser,
+  findOrCreateUserByDiscordId,
 };

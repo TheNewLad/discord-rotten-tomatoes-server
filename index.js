@@ -1,6 +1,8 @@
 import { connectDB } from "#config/db";
 import { env } from "#config/environment";
+import { ClerkAuthMiddleware } from "#middleware/clerk-auth.middleware";
 import { ApiRoutes } from "#routes/api.routes";
+import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
 import express from "express";
 
 const app = express();
@@ -9,7 +11,11 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-app.use("/api", ApiRoutes);
+app.use(
+  "/api",
+  [ClerkExpressRequireAuth(), ClerkAuthMiddleware.handleClerkAuthError],
+  ApiRoutes,
+);
 
 // Start server
 app.listen(env.PORT, () => {

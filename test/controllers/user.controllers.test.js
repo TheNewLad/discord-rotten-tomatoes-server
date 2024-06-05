@@ -1,59 +1,81 @@
 import { UserController } from "#controllers/user.controllers";
+import { ClerkService } from "#services/clerk.services";
+import { DiscordService } from "#services/discord.services";
 import { UserService } from "#services/user.services";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("#services/user.services");
+vi.mock("#services/discord.services");
+vi.mock("#services/clerk.services");
 
 describe("UserController", () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("authorizeUser", () => {
-    it("should return 204 no content when no action query param is provided", () => {
-      const req = { query: {} };
-      const res = {
-        status: vi.fn().mockReturnValue({ end: vi.fn() }),
-      };
-      UserController.authorizeUser(req, res);
-      expect(res.status).toHaveBeenCalledWith(204);
-      expect(res.status().end).toHaveBeenCalled();
+  describe("validateUser", () => {
+    const clerkUserId = "clerk-user-id";
+    const clerkSessionId = "clerk-session-id";
+
+    const req = {
+      auth: { userId: clerkUserId, sessionId: clerkSessionId },
+    };
+    const res = { status: vi.fn().mockReturnValue({ json: vi.fn() }) };
+
+    const discordUserId = "discord-user-id";
+    const discordAccessToken = "discord-access-token";
+
+    it("should return 403 unauthorized when Discord user is not in Discord server", async () => {
+      const discordUserPresence = { found: false };
+
+      ClerkService.getUserDiscordAccessToken.mockResolvedValue(
+        discordAccessToken,
+      );
+      DiscordService.findUserInServer.mockResolvedValue(discordUserPresence);
+
+      await UserController.validateUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status().json).toHaveBeenCalledWith({
+        message: "User is not in Discord server.",
+      });
+      expect(ClerkService.getUserDiscordAccessToken).toHaveBeenCalledWith(
+        clerkUserId,
+      );
+      expect(DiscordService.findUserInServer).toHaveBeenCalledWith(
+        discordAccessToken,
+      );
+      expect(ClerkService.revokeUserSession).toHaveBeenCalledWith(
+        clerkSessionId,
+      );
     });
 
-    describe("when action query param is 'authorize'", () => {
-      it("should authorize the user when Clerk session ID is provided", async () => {
-        const req = {
-          query: { action: "authorize" },
-          auth: { sessionId: "session-id" },
-        };
-        const res = { json: vi.fn(), status: vi.fn() };
-        UserService.authorizeUser.mockResolvedValue({ authorized: true });
+    it("should return 200 OK when Discord user is in Discord server", async () => {
+      const discordUserPresence = { found: true, id: discordUserId };
 
-        await UserController.authorizeUser(req, res);
+      ClerkService.getUserDiscordAccessToken.mockResolvedValue(
+        discordAccessToken,
+      );
+      DiscordService.findUserInServer.mockResolvedValue(discordUserPresence);
 
-        expect(UserService.authorizeUser).toHaveBeenCalledWith("session-id");
-        expect(res.json).toHaveBeenCalledWith({ authorized: true });
+      await UserController.validateUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status().json).toHaveBeenCalledWith({
+        message: "User is in Discord server.",
       });
-
-      it("should return 500 error when UserService throws an error", async () => {
-        const req = {
-          query: { action: "authorize" },
-          auth: { sessionId: "session-id" },
-        };
-        const res = {
-          status: vi.fn().mockReturnValue({ json: vi.fn() }),
-        };
-        UserService.authorizeUser.mockRejectedValue(
-          new Error("Authorization failed"),
-        );
-
-        await UserController.authorizeUser(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.status().json).toHaveBeenCalledWith({
-          message: "Failed to authorize user",
-        });
-      });
+      expect(ClerkService.getUserDiscordAccessToken).toHaveBeenCalledWith(
+        clerkUserId,
+      );
+      expect(DiscordService.findUserInServer).toHaveBeenCalledWith(
+        discordAccessToken,
+      );
+      expect(ClerkService.revokeUserSession).not.toHaveBeenCalledWith(
+        clerkSessionId,
+      );
+      expect(UserService.findOrCreateUserByDiscordId).toHaveBeenCalledWith(
+        discordUserId,
+      );
     });
   });
 });
