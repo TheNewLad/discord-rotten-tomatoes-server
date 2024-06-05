@@ -1,4 +1,4 @@
-import { env } from "#config/environment";
+import { env } from "@config/environment";
 
 const findUserInServer = async (discordAccessToken) => {
   const response = await fetch(

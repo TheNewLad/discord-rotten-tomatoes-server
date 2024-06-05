@@ -1,6 +1,6 @@
-import { ClerkService } from "#services/clerk.services";
-import { DiscordService } from "#services/discord.services";
-import { UserService } from "#services/user.services";
+import { ClerkService } from "@services/clerk.services";
+import { DiscordService } from "@services/discord.services";
+import { UserService } from "@services/user.services";
 
 const validateUser = async (req, res) => {
   const { userId: clerkUserId, sessionId: clerkSessionId } = req.auth;

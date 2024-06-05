@@ -1,12 +1,12 @@
-import { UserController } from "#controllers/user.controllers";
-import { ClerkService } from "#services/clerk.services";
-import { DiscordService } from "#services/discord.services";
-import { UserService } from "#services/user.services";
+import { UserController } from "@controllers/user.controllers";
+import { ClerkService } from "@services/clerk.services";
+import { DiscordService } from "@services/discord.services";
+import { UserService } from "@services/user.services";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("#services/user.services");
-vi.mock("#services/discord.services");
-vi.mock("#services/clerk.services");
+vi.mock("@services/user.services");
+vi.mock("@services/discord.services");
+vi.mock("@services/clerk.services");
 
 describe("UserController", () => {
   afterEach(() => {

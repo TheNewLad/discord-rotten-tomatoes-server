@@ -1,5 +1,5 @@
-import { env } from "#config/environment";
-import { DiscordService } from "#services/discord.services";
+import { env } from "@config/environment";
+import { DiscordService } from "@services/discord.services";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("DiscordService", () => {

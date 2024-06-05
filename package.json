@@ -29,13 +29,5 @@
     "mongoose": "^8.3.4",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.0"
-  },
-  "imports": {
-    "#config/*": "./config/*.js",
-    "#controllers/*": "./src/controllers/*.js",
-    "#middleware/*": "./src/middleware/*.js",
-    "#models/*": "./src/models/*.js",
-    "#routes/*": "./src/routes/*.js",
-    "#services/*": "./src/services/*.js"
   }
 }

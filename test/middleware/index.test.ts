@@ -1,4 +1,4 @@
-import { authenticateRequest } from "#middleware/index";
+import { authenticateRequest } from "@middleware/index";
 import { describe, expect, it, vi } from "vitest";
 
 describe("middleware", () => {

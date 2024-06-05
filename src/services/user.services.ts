@@ -1,4 +1,4 @@
-import { UserModel } from "#models/user.model";
+import { UserModel } from "@models/user.model";
 import { ClerkService } from "./clerk.services.js";
 import { DiscordService } from "./discord.services.js";
 

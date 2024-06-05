@@ -1,5 +1,5 @@
-import { UserRoutes } from "#routes/user.routes";
-import { ValidationRoutes } from "#routes/validation.routes";
+import { UserRoutes } from "@routes/user.routes";
+import { ValidationRoutes } from "@routes/validation.routes";
 import express from "express";
 
 const router = express.Router();
