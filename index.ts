@@ -1,8 +1,8 @@
-import { connectDB } from "#config/db";
-import { env } from "#config/environment";
-import { ClerkAuthMiddleware } from "#middleware/clerk-auth.middleware";
-import { ApiRoutes } from "#routes/api.routes";
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
+import { connectDB } from "@config/db";
+import { env } from "@config/environment";
+import { ClerkAuthMiddleware } from "@middleware/clerk-auth.middleware";
+import { ApiRoutes } from "@routes/api.routes";
 import express from "express";
 
 const app = express();
