@@ -1,4 +1,6 @@
-const handleClerkAuthError = (error, req, res, next) => {
+import { ErrorRequestHandler } from "express";
+
+const handleClerkAuthError: ErrorRequestHandler = (error, _req, res, next) => {
   if (!error) {
     return next();
   }

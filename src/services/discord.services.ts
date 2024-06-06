@@ -1,6 +1,6 @@
 import { env } from "@config/environment";
 
-const findUserInServer = async (discordAccessToken) => {
+const findUserInServer = async (discordAccessToken: string) => {
   const response = await fetch(
     `https://discord.com/api/users/@me/guilds/${env.DISCORD_SERVER_ID}/member`,
     {

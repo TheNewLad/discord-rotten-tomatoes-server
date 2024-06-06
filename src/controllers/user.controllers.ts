@@ -1,8 +1,10 @@
+import { StrictAuthProp } from "@clerk/clerk-sdk-node";
 import { ClerkService } from "@services/clerk.services";
 import { DiscordService } from "@services/discord.services";
 import { UserService } from "@services/user.services";
+import { Request, Response } from "express";
 
-const validateUser = async (req, res) => {
+const validateUser = async (req: Request & StrictAuthProp, res: Response) => {
   const { userId: clerkUserId, sessionId: clerkSessionId } = req.auth;
 
   try {

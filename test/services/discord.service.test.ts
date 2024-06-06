@@ -1,6 +1,6 @@
 import { env } from "@config/environment";
 import { DiscordService } from "@services/discord.services";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 describe("DiscordService", () => {
   const discordAccessToken = "discord-access-token";
@@ -16,7 +16,7 @@ describe("DiscordService", () => {
     },
   ];
 
-  let mockedFetch;
+  let mockedFetch: Mock<any, any>;
 
   beforeEach(() => {
     mockedFetch = vi.fn();

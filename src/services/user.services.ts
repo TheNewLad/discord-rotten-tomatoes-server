@@ -2,7 +2,7 @@ import { UserModel } from "@models/user.model";
 import { ClerkService } from "./clerk.services.js";
 import { DiscordService } from "./discord.services.js";
 
-const getClerkUserId = async (clerkSessionId) => {
+const getClerkUserId = async (clerkSessionId: string) => {
   if (!clerkSessionId) {
     throw new Error("Clerk session ID is required");
   }
@@ -10,13 +10,13 @@ const getClerkUserId = async (clerkSessionId) => {
   return await ClerkService.getUserIdFromSession(clerkSessionId);
 };
 
-const checkIfUserIsAlreadyAuthorized = async (clerkUserId) => {
+const checkIfUserIsAlreadyAuthorized = async (clerkUserId: string) => {
   const { publicMetadata } = await ClerkService.getUserMetadata(clerkUserId);
 
   return !!publicMetadata.authorized;
 };
 
-const getDiscordOauthToken = async (clerkUserId) => {
+const getDiscordOauthToken = async (clerkUserId: string) => {
   const discordOauthToken =
     await ClerkService.getUserDiscordAccessToken(clerkUserId);
 
@@ -27,7 +27,7 @@ const getDiscordOauthToken = async (clerkUserId) => {
   return discordOauthToken;
 };
 
-const authorizeUser = async (clerkSessionId) => {
+const authorizeUser = async (clerkSessionId: string) => {
   try {
     const clerkUserId = await getClerkUserId(clerkSessionId);
 
@@ -48,7 +48,7 @@ const authorizeUser = async (clerkSessionId) => {
   }
 };
 
-const findOrCreateUserByDiscordId = async (discordId) => {
+const findOrCreateUserByDiscordId = async (discordId: string) => {
   // Find user by Discord ID
   const user = await UserModel.findOne({ discordId });
 

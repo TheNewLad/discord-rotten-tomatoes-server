@@ -9,6 +9,7 @@
       "@routes/*": ["./src/routes/*"],
       "@services/*": ["./src/services/*"]
     },
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
   }
 }

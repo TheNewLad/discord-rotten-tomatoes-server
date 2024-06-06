@@ -1,4 +1,6 @@
-export const authenticateRequest = (req, res, next) => {
+import { RequestHandler } from "express";
+
+export const authenticateRequest: RequestHandler = (req, res, next) => {
   const { authorization } = req.headers;
   console.log("authorization", authorization);
   if (!authorization) {

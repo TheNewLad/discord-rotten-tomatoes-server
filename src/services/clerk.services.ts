@@ -1,6 +1,6 @@
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
-const getUserMetadata = async (userId) => {
+const getUserMetadata = async (userId: string) => {
   const user = await clerkClient.users.getUser(userId);
 
   return {
@@ -10,7 +10,7 @@ const getUserMetadata = async (userId) => {
   };
 };
 
-const getUserIdFromSession = async (sessionId) => {
+const getUserIdFromSession = async (sessionId: string) => {
   const { userId } = await clerkClient.sessions.getSession(sessionId);
 
   const { id } = await clerkClient.users.getUser(userId);
@@ -18,7 +18,7 @@ const getUserIdFromSession = async (sessionId) => {
   return id;
 };
 
-const getUserDiscordAccessToken = async (userId) => {
+const getUserDiscordAccessToken = async (userId: string) => {
   const discordOauthProvider = "oauth_discord";
 
   const userOauthAccessTokens = await clerkClient.users.getUserOauthAccessToken(
@@ -31,11 +31,17 @@ const getUserDiscordAccessToken = async (userId) => {
   )?.token;
 };
 
-const revokeUserSession = async (sessionId) =>
+const revokeUserSession = async (sessionId: string) =>
   clerkClient.sessions.revokeSession(sessionId);
 
-const updateUserMetadata = async (userId, metadata) =>
-  await clerkClient.users.updateUserMetadata(userId, metadata);
+const updateUserMetadata = async (
+  userId: string,
+  metadata: {
+    publicMetadata?: UserPublicMetadata;
+    privateMetadata?: UserPrivateMetadata;
+    unsafeMetadata?: UserUnsafeMetadata;
+  },
+) => await clerkClient.users.updateUserMetadata(userId, metadata);
 
 export const ClerkService = {
   getUserIdFromSession,
