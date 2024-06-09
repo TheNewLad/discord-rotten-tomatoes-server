@@ -10,6 +10,6 @@
       "@services/*": ["./src/services/*"]
     },
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true,
+    "noImplicitAny": true
   }
 }
