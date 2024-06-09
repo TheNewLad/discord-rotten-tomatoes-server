@@ -7,76 +7,64 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 const supabaseUrl = env.SUPABASE_URL;
 const supabaseKey = env.SUPABASE_KEY;
 
-let supabase: SupabaseClient<Database> | null = null;
+class SupabaseService {
+  private supabase: SupabaseClient<Database>;
 
-const initClient = async (clerkSessionId: string) => {
-  if (!clerkSessionId) {
-    throw new Error("Clerk session ID is required");
-  }
-
-  if (!supabase) {
-    console.log("Initializing Supabase client");
-
-    const token = await ClerkService.getSupabaseToken(clerkSessionId);
-
-    supabase = createClient(supabaseUrl, supabaseKey, {
+  constructor(token: string) {
+    this.supabase = createClient(supabaseUrl, supabaseKey, {
       global: { headers: { Authorization: `Bearer ${token}` } },
     });
-
-    console.log("Supabase client initialized");
-  }
-};
-
-const findUserByDiscordUserId = async (
-  discordUserId: string,
-): Promise<User> => {
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("discord_user_id", discordUserId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(`Failed to find user: ${error.message}`);
   }
 
-  return data;
-};
+  private async findUserByDiscordUserId(discordUserId: string): Promise<User> {
+    const { data, error } = await this.supabase
+      .from("users")
+      .select("*")
+      .eq("discord_user_id", discordUserId)
+      .maybeSingle();
 
-const createUser = async (newUser: NewUser): Promise<User> => {
-  const { data, error } = await supabase
-    .from("users")
-    .insert([newUser])
-    .select()
-    .single();
+    if (error) {
+      throw new Error(`Failed to find user: ${error.message}`);
+    }
 
-  if (error) {
-    throw new Error(`Failed to create user: ${error.message}`);
+    return data;
   }
 
-  return data;
-};
+  private async createUser(newUser: NewUser): Promise<User> {
+    const { data, error } = await this.supabase
+      .from("users")
+      .insert([newUser])
+      .select()
+      .single();
 
-const findOrCreateUserByDiscordUserId = async (
-  discordUserId: string,
-): Promise<User> => {
-  // Find user by Discord ID
-  let user = await findUserByDiscordUserId(discordUserId);
+    if (error) {
+      throw new Error(`Failed to create user: ${error.message}`);
+    }
 
-  // If user doesn't exist, create a new user
-  if (!user) {
-    console.log("User not found, creating new user");
-    user = await createUser({ discord_user_id: discordUserId });
+    return data;
   }
 
-  return user;
-};
+  public async findOrCreateUserByDiscordUserId(
+    discordUserId: string,
+  ): Promise<User> {
+    // Find user by Discord ID
+    let user = await this.findUserByDiscordUserId(discordUserId);
 
-export const SupabaseServiceFactory = async (clerkSessionId: string) => {
-  await initClient(clerkSessionId);
+    // If user doesn't exist, create a new user
+    if (!user) {
+      console.log("User not found, creating new user");
+      user = await this.createUser({ discord_user_id: discordUserId });
+    }
 
-  return {
-    findOrCreateUserByDiscordUserId,
-    createUser,
-  };
-};
+    return user;
+  }
+}
+
+export class SupabaseServiceFactory {
+  public static async createService(clerkSessionId: string) {
+    const token =
+      await ClerkService.getInstance().getSupabaseToken(clerkSessionId);
+
+    return new SupabaseService(token);
+  }
+}
