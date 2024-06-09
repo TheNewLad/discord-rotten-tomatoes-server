@@ -7,7 +7,7 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 const supabaseUrl = env.SUPABASE_URL;
 const supabaseKey = env.SUPABASE_KEY;
 
-class SupabaseService {
+export class SupabaseService {
   private supabase: SupabaseClient<Database>;
 
   constructor(token: string) {
