@@ -1,6 +1,7 @@
 import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
 import { env } from "@config/environment";
 import { ClerkAuthMiddleware } from "@middleware/clerk-auth.middleware";
+import { responseTime } from "@middleware/reponse-time.middleware";
 import { ApiRoutes } from "@routes/api.routes";
 import cors from "cors";
 import express from "express";
@@ -15,6 +16,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(responseTime);
 app.use(
   "/api",
   [ClerkExpressRequireAuth(), ClerkAuthMiddleware.handleClerkAuthError],

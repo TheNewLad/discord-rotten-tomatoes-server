@@ -1,22 +1,43 @@
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
 export class ClerkService {
-  private static instance: ClerkService;
+  private readonly userId: string;
+  private readonly sessionId: string;
+  private static clerkService: ClerkService;
 
-  private constructor() {
-    console.log("ClerkService initialized");
+  private constructor({
+    userId,
+    sessionId,
+  }: {
+    userId: string;
+    sessionId: string;
+  }) {
+    this.userId = userId;
+    this.sessionId = sessionId;
   }
 
-  public static getInstance(): ClerkService {
-    if (!ClerkService.instance) {
-      ClerkService.instance = new ClerkService();
+  public static init({
+    userId,
+    sessionId,
+  }: {
+    userId: string;
+    sessionId: string;
+  }) {
+    console.info("Initializing ClerkService");
+
+    this.clerkService = new ClerkService({ userId, sessionId });
+  }
+
+  public static getInstance() {
+    if (!this.clerkService) {
+      throw new Error("ClerkService not initialized");
     }
 
-    return ClerkService.instance;
+    return this.clerkService;
   }
 
-  public async getUserMetadata(userId: string) {
-    const user = await clerkClient.users.getUser(userId);
+  public async getUserMetadata() {
+    const user = await clerkClient.users.getUser(this.userId);
 
     return {
       publicMetadata: user.publicMetadata,
@@ -25,20 +46,12 @@ export class ClerkService {
     };
   }
 
-  public async getUserIdFromSession(sessionId: string) {
-    const { userId } = await clerkClient.sessions.getSession(sessionId);
-
-    const { id } = await clerkClient.users.getUser(userId);
-
-    return id;
-  }
-
-  public async getUserDiscordAccessToken(userId: string) {
+  public async getUserDiscordAccessToken() {
     const discordOauthProvider = "oauth_discord";
 
     const userOauthAccessTokens =
       await clerkClient.users.getUserOauthAccessToken(
-        userId,
+        this.userId,
         discordOauthProvider,
       );
 
@@ -47,23 +60,23 @@ export class ClerkService {
     )?.token;
   }
 
-  public async revokeUserSession(sessionId: string) {
-    return clerkClient.sessions.revokeSession(sessionId);
+  public async revokeUserSession() {
+    return clerkClient.sessions.revokeSession(this.sessionId);
   }
 
-  public async updateUserMetadata(
-    userId: string,
-    metadata: {
-      publicMetadata?: UserPublicMetadata;
-      privateMetadata?: UserPrivateMetadata;
-      unsafeMetadata?: UserUnsafeMetadata;
-    },
-  ) {
-    return clerkClient.users.updateUserMetadata(userId, metadata);
+  public async updateUserMetadata(metadata: {
+    publicMetadata?: UserPublicMetadata;
+    privateMetadata?: UserPrivateMetadata;
+    unsafeMetadata?: UserUnsafeMetadata;
+  }) {
+    return clerkClient.users.updateUserMetadata(this.userId, metadata);
   }
 
-  public async getSupabaseToken(sessionId: string): Promise<string> {
-    const { jwt } = await clerkClient.sessions.getToken(sessionId, "supabase");
+  public async getSupabaseToken(): Promise<string> {
+    const { jwt } = await clerkClient.sessions.getToken(
+      this.sessionId,
+      "supabase",
+    );
 
     return jwt;
   }

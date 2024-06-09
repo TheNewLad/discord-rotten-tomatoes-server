@@ -10,20 +10,6 @@ interface NotFoundResponse {
 }
 
 export class DiscordService {
-  private static instance: DiscordService;
-
-  private constructor() {
-    console.log("DiscordService initialized");
-  }
-
-  public static getInstance(): DiscordService {
-    if (!DiscordService.instance) {
-      DiscordService.instance = new DiscordService();
-    }
-
-    return DiscordService.instance;
-  }
-
   public async findUserInServer(
     discordAccessToken: string,
   ): Promise<FoundResponse | NotFoundResponse> {

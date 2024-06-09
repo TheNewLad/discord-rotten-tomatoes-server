@@ -52,7 +52,7 @@ export class SupabaseService {
 
     // If user doesn't exist, create a new user
     if (!user) {
-      console.log("User not found, creating new user");
+      console.warn("User not found, creating new user");
       user = await this.createUser({ discord_user_id: discordUserId });
     }
 
@@ -61,10 +61,11 @@ export class SupabaseService {
 }
 
 export class SupabaseServiceFactory {
-  public static async createService(clerkSessionId: string) {
-    const token =
-      await ClerkService.getInstance().getSupabaseToken(clerkSessionId);
+  public static async createService() {
+    console.info("Creating Supabase service");
+    const token = await ClerkService.getInstance().getSupabaseToken();
 
+    console.info("Supabase service created");
     return new SupabaseService(token);
   }
 }

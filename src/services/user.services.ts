@@ -23,9 +23,9 @@ export class UserService {
     this.supabaseService = supabaseService;
   }
 
-  private async getDiscordOauthToken(clerkUserId: string): Promise<string> {
+  private async getDiscordOauthToken(): Promise<string> {
     const discordOauthToken =
-      await this.clerkService.getUserDiscordAccessToken(clerkUserId);
+      await this.clerkService.getUserDiscordAccessToken();
 
     if (!discordOauthToken) {
       throw new Error("User does not have a Discord OAuth token");
@@ -42,26 +42,22 @@ export class UserService {
     );
   }
 
-  async validateUser(
-    clerkUserId: string,
-    clerkSessionId: string,
-  ): Promise<UserValidationResponse> {
+  async validateUser(): Promise<UserValidationResponse> {
     try {
-      const discordAccessToken = await this.getDiscordOauthToken(clerkUserId);
+      const discordAccessToken = await this.getDiscordOauthToken();
       const discordUserPresence =
         await this.discordService.findUserInServer(discordAccessToken);
 
       if (!discordUserPresence.found) {
-        await this.clerkService.revokeUserSession(clerkSessionId);
+        await this.clerkService.revokeUserSession();
         return { status: 403, message: "User is not in Discord server." };
       }
 
       const user = await this.findOrCreateUserByDiscordUserId(
         discordUserPresence.id,
-        clerkSessionId,
       );
 
-      await this.clerkService.updateUserMetadata(clerkUserId, {
+      await this.clerkService.updateUserMetadata({
         publicMetadata: { app_user_id: user.id },
       });
 
