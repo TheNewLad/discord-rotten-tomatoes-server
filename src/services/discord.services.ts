@@ -1,26 +1,49 @@
 import { env } from "@config/environment";
 
-const findUserInServer = async (discordAccessToken: string) => {
-  const response = await fetch(
-    `https://discord.com/api/users/@me/guilds/${env.DISCORD_SERVER_ID}/member`,
-    {
-      headers: {
-        Authorization: `Bearer ${discordAccessToken}`,
-        "Content-Type": "application/json",
-      },
-      method: "GET",
-    },
-  );
+interface FoundResponse {
+  found: true;
+  id: string;
+}
 
-  if (!response.ok) {
-    return { found: false };
+interface NotFoundResponse {
+  found: false;
+}
+
+class DiscordService {
+  private static instance: DiscordService;
+
+  private constructor() {
+    console.log("DiscordService initialized");
   }
 
-  const { user } = await response.json();
+  public static getInstance(): DiscordService {
+    if (!DiscordService.instance) {
+      DiscordService.instance = new DiscordService();
+    }
 
-  return { found: true, id: user.id };
-};
+    return DiscordService.instance;
+  }
 
-export const DiscordService = {
-  findUserInServer,
-};
+  public async findUserInServer(
+    discordAccessToken: string,
+  ): Promise<FoundResponse | NotFoundResponse> {
+    const response = await fetch(
+      `https://discord.com/api/users/@me/guilds/${env.DISCORD_SERVER_ID}/member`,
+      {
+        headers: {
+          Authorization: `Bearer ${discordAccessToken}`,
+          "Content-Type": "application/json",
+        },
+        method: "GET",
+      },
+    );
+
+    if (!response.ok) {
+      return { found: false };
+    }
+
+    const { user } = await response.json();
+
+    return { found: true, id: user.id };
+  }
+}
