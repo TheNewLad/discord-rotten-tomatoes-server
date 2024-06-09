@@ -1,59 +1,70 @@
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
-const getUserMetadata = async (userId: string) => {
-  const user = await clerkClient.users.getUser(userId);
+class ClerkService {
+  private static instance: ClerkService;
 
-  return {
-    publicMetadata: user.publicMetadata,
-    privateMetadata: user.privateMetadata,
-    unsafeMetadata: user.unsafeMetadata,
-  };
-};
+  private constructor() {
+    console.log("ClerkService initialized");
+  }
 
-const getUserIdFromSession = async (sessionId: string) => {
-  const { userId } = await clerkClient.sessions.getSession(sessionId);
+  public static getInstance(): ClerkService {
+    if (!ClerkService.instance) {
+      ClerkService.instance = new ClerkService();
+    }
 
-  const { id } = await clerkClient.users.getUser(userId);
+    return ClerkService.instance;
+  }
 
-  return id;
-};
+  public async getUserMetadata(userId: string) {
+    const user = await clerkClient.users.getUser(userId);
 
-const getUserDiscordAccessToken = async (userId: string) => {
-  const discordOauthProvider = "oauth_discord";
+    return {
+      publicMetadata: user.publicMetadata,
+      privateMetadata: user.privateMetadata,
+      unsafeMetadata: user.unsafeMetadata,
+    };
+  }
 
-  const userOauthAccessTokens = await clerkClient.users.getUserOauthAccessToken(
-    userId,
-    discordOauthProvider,
-  );
+  public async getUserIdFromSession(sessionId: string) {
+    const { userId } = await clerkClient.sessions.getSession(sessionId);
 
-  return userOauthAccessTokens.data.find(
-    (account) => account.provider === discordOauthProvider,
-  )?.token;
-};
+    const { id } = await clerkClient.users.getUser(userId);
 
-const revokeUserSession = async (sessionId: string) =>
-  clerkClient.sessions.revokeSession(sessionId);
+    return id;
+  }
 
-const updateUserMetadata = async (
-  userId: string,
-  metadata: {
-    publicMetadata?: UserPublicMetadata;
-    privateMetadata?: UserPrivateMetadata;
-    unsafeMetadata?: UserUnsafeMetadata;
-  },
-) => await clerkClient.users.updateUserMetadata(userId, metadata);
+  public async getUserDiscordAccessToken(userId: string) {
+    const discordOauthProvider = "oauth_discord";
 
-const getSupabaseToken = async (sessionId: string): Promise<string> => {
-  const { jwt } = await clerkClient.sessions.getToken(sessionId, "supabase");
+    const userOauthAccessTokens =
+      await clerkClient.users.getUserOauthAccessToken(
+        userId,
+        discordOauthProvider,
+      );
 
-  return jwt;
-};
+    return userOauthAccessTokens.data.find(
+      (account) => account.provider === discordOauthProvider,
+    )?.token;
+  }
 
-export const ClerkService = {
-  getUserIdFromSession,
-  getUserDiscordAccessToken,
-  getUserMetadata,
-  revokeUserSession,
-  updateUserMetadata,
-  getSupabaseToken,
-};
+  public async revokeUserSession(sessionId: string) {
+    return clerkClient.sessions.revokeSession(sessionId);
+  }
+
+  public async updateUserMetadata(
+    userId: string,
+    metadata: {
+      publicMetadata?: UserPublicMetadata;
+      privateMetadata?: UserPrivateMetadata;
+      unsafeMetadata?: UserUnsafeMetadata;
+    },
+  ) {
+    return clerkClient.users.updateUserMetadata(userId, metadata);
+  }
+
+  public async getSupabaseToken(sessionId: string): Promise<string> {
+    const { jwt } = await clerkClient.sessions.getToken(sessionId, "supabase");
+
+    return jwt;
+  }
+}
