@@ -1,6 +1,6 @@
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
-class ClerkService {
+export class ClerkService {
   private static instance: ClerkService;
 
   private constructor() {
