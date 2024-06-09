@@ -9,7 +9,7 @@ interface NotFoundResponse {
   found: false;
 }
 
-class DiscordService {
+export class DiscordService {
   private static instance: DiscordService;
 
   private constructor() {
