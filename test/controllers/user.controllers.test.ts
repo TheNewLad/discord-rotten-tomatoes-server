@@ -83,7 +83,7 @@ describe("UserController", () => {
       expect(ClerkService.revokeUserSession).not.toHaveBeenCalledWith(
         clerkSessionId,
       );
-      expect(UserService.findOrCreateUserByDiscordId).toHaveBeenCalledWith(
+      expect(UserService.findOrCreateUserByDiscordUserId).toHaveBeenCalledWith(
         discordUserId,
       );
     });

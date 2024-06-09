@@ -1,6 +1,5 @@
-import { UserModel } from "@models/user.model";
+import { SupabaseServiceFactory } from "@services/supabase.services";
 import { ClerkService } from "./clerk.services.js";
-import { DiscordService } from "./discord.services.js";
 
 const getClerkUserId = async (clerkSessionId: string) => {
   if (!clerkSessionId) {
@@ -27,41 +26,15 @@ const getDiscordOauthToken = async (clerkUserId: string) => {
   return discordOauthToken;
 };
 
-const authorizeUser = async (clerkSessionId: string) => {
-  try {
-    const clerkUserId = await getClerkUserId(clerkSessionId);
+const findOrCreateUserByDiscordUserId = async (
+  discordUserId: string,
+  clerkSessionId: string,
+) => {
+  const supabaseService = await SupabaseServiceFactory(clerkSessionId);
 
-    const isUserAlreadyAuthorized =
-      await checkIfUserIsAlreadyAuthorized(clerkUserId);
-    if (isUserAlreadyAuthorized) {
-      return { authorized: true };
-    }
-
-    const discordOauthToken = await getDiscordOauthToken(clerkUserId);
-
-    const isUserInServer =
-      !!(await DiscordService.findUserInServer(discordOauthToken));
-
-    return { authorized: isUserInServer };
-  } catch (error) {
-    throw new Error(`Failed to authorize user: ${error}`);
-  }
-};
-
-const findOrCreateUserByDiscordId = async (discordId: string) => {
-  // Find user by Discord ID
-  const user = await UserModel.findOne({ discordId });
-
-  // If user doesn't exist, create a new user
-
-  if (!user) {
-    return await UserModel.create({ discordId });
-  }
-
-  return user;
+  return await supabaseService.findOrCreateUserByDiscordUserId(discordUserId);
 };
 
 export const UserService = {
-  authorizeUser,
-  findOrCreateUserByDiscordId,
+  findOrCreateUserByDiscordUserId,
 };

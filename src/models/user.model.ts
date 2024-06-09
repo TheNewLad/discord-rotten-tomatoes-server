@@ -1,8 +1,4 @@
-import mongoose from "mongoose";
+import { Tables, TablesInsert } from "@models/database.model";
 
-const userSchema = new mongoose.Schema({
-  discordId: { type: String, required: true, unique: true },
-  reviewWeights: { type: Map, of: Number },
-});
-
-export const UserModel = mongoose.model("User", userSchema);
+export type User = Tables<"users"> | null;
+export type NewUser = TablesInsert<"users">;

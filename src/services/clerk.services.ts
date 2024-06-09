@@ -43,10 +43,17 @@ const updateUserMetadata = async (
   },
 ) => await clerkClient.users.updateUserMetadata(userId, metadata);
 
+const getSupabaseToken = async (sessionId: string): Promise<string> => {
+  const { jwt } = await clerkClient.sessions.getToken(sessionId, "supabase");
+
+  return jwt;
+};
+
 export const ClerkService = {
   getUserIdFromSession,
   getUserDiscordAccessToken,
   getUserMetadata,
   revokeUserSession,
   updateUserMetadata,
+  getSupabaseToken,
 };

@@ -20,7 +20,14 @@ const validateUser = async (req: Request & StrictAuthProp, res: Response) => {
         .json({ message: "User is not in Discord server." });
     }
 
-    await UserService.findOrCreateUserByDiscordId(discordUserPresence.id);
+    const user = await UserService.findOrCreateUserByDiscordUserId(
+      discordUserPresence.id,
+      clerkSessionId,
+    );
+
+    await ClerkService.updateUserMetadata(clerkUserId, {
+      publicMetadata: { app_user_id: user.id },
+    });
 
     return res.status(200).json({ message: "User is in Discord server." });
   } catch (error) {
