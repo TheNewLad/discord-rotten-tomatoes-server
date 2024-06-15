@@ -1,6 +1,6 @@
 import { env } from "@config/environment";
 import { Database } from "@models/database.model";
-import { NewUser, User } from "@models/user.model";
+import { User } from "@models/user.model";
 import { ClerkService } from "@services/clerk.services";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
@@ -16,47 +16,23 @@ export class SupabaseService {
     });
   }
 
-  private async findUserByDiscordUserId(discordUserId: string): Promise<User> {
+  public async findOrCreateUserByDiscordUserId(
+    discordUserId: string,
+  ): Promise<User> {
     const { data, error } = await this.supabase
       .from("users")
-      .select("*")
-      .eq("discord_user_id", discordUserId)
-      .maybeSingle();
-
-    if (error) {
-      throw new Error(`Failed to find user: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  private async createUser(newUser: NewUser): Promise<User> {
-    const { data, error } = await this.supabase
-      .from("users")
-      .insert([newUser])
+      .upsert(
+        { discord_user_id: discordUserId },
+        { onConflict: "discord_user_id" },
+      )
       .select()
       .single();
 
     if (error) {
-      throw new Error(`Failed to create user: ${error.message}`);
+      throw new Error(`Failed to find or create user: ${error.message}`);
     }
 
     return data;
-  }
-
-  public async findOrCreateUserByDiscordUserId(
-    discordUserId: string,
-  ): Promise<User> {
-    // Find user by Discord ID
-    let user = await this.findUserByDiscordUserId(discordUserId);
-
-    // If user doesn't exist, create a new user
-    if (!user) {
-      console.warn("User not found, creating new user");
-      user = await this.createUser({ discord_user_id: discordUserId });
-    }
-
-    return user;
   }
 }
 

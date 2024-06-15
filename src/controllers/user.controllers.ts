@@ -12,6 +12,7 @@ const validateUser = async (req: Request & StrictAuthProp, res: Response) => {
 
   const clerkService = ClerkService.getInstance();
   const discordService = new DiscordService();
+
   const supabaseService = await SupabaseServiceFactory.createService();
 
   const userService = new UserService(
@@ -21,13 +22,13 @@ const validateUser = async (req: Request & StrictAuthProp, res: Response) => {
   );
 
   try {
-    const { status, message } = await userService.validateUser();
+    const { status, body } = await userService.validateUser();
 
-    return res.status(status).json({ message });
+    return res.status(status).json({ ...body });
   } catch (error) {
     console.error("Error validating user:", error);
 
-    return res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ body: "Internal server error." });
   }
 };
 

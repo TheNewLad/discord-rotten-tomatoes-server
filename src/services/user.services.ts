@@ -5,7 +5,7 @@ import { ClerkService } from "./clerk.services.js";
 
 interface UserValidationResponse {
   status: number;
-  message: string;
+  body: { message: string; user?: User };
 }
 
 export class UserService {
@@ -45,12 +45,16 @@ export class UserService {
   async validateUser(): Promise<UserValidationResponse> {
     try {
       const discordAccessToken = await this.getDiscordOauthToken();
+
       const discordUserPresence =
         await this.discordService.findUserInServer(discordAccessToken);
 
       if (!discordUserPresence.found) {
         await this.clerkService.revokeUserSession();
-        return { status: 403, message: "User is not in Discord server." };
+        return {
+          status: 403,
+          body: { message: "User is not in Discord server." },
+        };
       }
 
       const user = await this.findOrCreateUserByDiscordUserId(
@@ -61,10 +65,10 @@ export class UserService {
         publicMetadata: { app_user_id: user.id },
       });
 
-      return { status: 200, message: "User is in Discord server." };
+      return { status: 200, body: { message: "User validated", user } };
     } catch (error) {
       console.error("Error validating user:", error);
-      return { status: 500, message: "Internal server error." };
+      return { status: 500, body: { message: "Internal server error." } };
     }
   }
 }
