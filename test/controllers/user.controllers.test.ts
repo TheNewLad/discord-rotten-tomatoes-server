@@ -1,7 +1,7 @@
 import { StrictAuthProp } from "@clerk/clerk-sdk-node";
 import { UserController } from "@controllers/user.controllers";
 import { ClerkService } from "@services/clerk.services";
-import { DiscordService } from "@services/discord.services";
+import { SupabaseServiceFactory } from "@services/supabase.services";
 import { UserService } from "@services/user.services";
 import { Request, Response } from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -30,66 +30,70 @@ describe("UserController", () => {
     const discordAccessToken = "discord-access-token";
 
     it("should return 403 unauthorized when Discord user is not in Discord server", async () => {
-      const discordUserPresence = { found: false };
+      const EXPECTED_ERROR_CODE = 403;
 
-      ClerkService.getUserDiscordAccessToken = vi
-        .fn()
-        .mockResolvedValue(discordAccessToken);
-      DiscordService.findUserInServer = vi
-        .fn()
-        .mockResolvedValue(discordUserPresence);
+      vi.spyOn(UserService.prototype, "validateUser").mockResolvedValue({
+        status: EXPECTED_ERROR_CODE,
+        body: { message: "User is not in Discord server." },
+      });
+
+      ClerkService.init = vi.fn();
+      ClerkService.getInstance = vi.fn();
+
+      SupabaseServiceFactory.createService = vi.fn().mockResolvedValue({});
 
       await UserController.validateUser(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(403);
-      // @ts-ignore
-      expect(res.status().json).toHaveBeenCalledWith({
+      expect(res.status).toHaveBeenCalledWith(EXPECTED_ERROR_CODE);
+      expect(res.status(EXPECTED_ERROR_CODE).json).toHaveBeenCalledWith({
         message: "User is not in Discord server.",
       });
-      expect(ClerkService.getUserDiscordAccessToken).toHaveBeenCalledWith(
-        clerkUserId,
-      );
-      expect(DiscordService.findUserInServer).toHaveBeenCalledWith(
-        discordAccessToken,
-      );
-      expect(ClerkService.revokeUserSession).toHaveBeenCalledWith(
-        clerkSessionId,
-      );
     });
 
     it("should return 200 OK when Discord user is in Discord server", async () => {
-      const discordUserPresence = { found: true, id: discordUserId };
+      const EXPECTED_ERROR_CODE = 200;
 
-      ClerkService.getUserDiscordAccessToken = vi
-        .fn()
-        .mockResolvedValue(discordAccessToken);
-      DiscordService.findUserInServer = vi
-        .fn()
-        .mockResolvedValue(discordUserPresence);
+      ClerkService.init = vi.fn();
+      ClerkService.getInstance = vi.fn();
+
+      SupabaseServiceFactory.createService = vi.fn().mockResolvedValue({});
+
+      vi.spyOn(UserService.prototype, "validateUser").mockResolvedValue({
+        status: EXPECTED_ERROR_CODE,
+        body: {
+          message: "User validated.",
+          user: {
+            clerk_user_id: "",
+            created_at: "",
+            discord_user_id: "",
+            id: 0,
+            review_weights: "",
+          },
+        },
+      });
 
       await UserController.validateUser(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      // @ts-ignore
-      expect(res.status().json).toHaveBeenCalledWith({
-        message: "User is in Discord server.",
+      expect(res.status).toHaveBeenCalledWith(EXPECTED_ERROR_CODE);
+      expect(res.status(EXPECTED_ERROR_CODE).json).toHaveBeenCalledWith({
+        message: "User validated.",
+        user: {
+          clerk_user_id: "",
+          created_at: "",
+          discord_user_id: "",
+          id: 0,
+          review_weights: "",
+        },
       });
-      expect(ClerkService.getUserDiscordAccessToken).toHaveBeenCalledWith(
-        clerkUserId,
-      );
-      expect(DiscordService.findUserInServer).toHaveBeenCalledWith(
-        discordAccessToken,
-      );
-      expect(ClerkService.revokeUserSession).not.toHaveBeenCalledWith(
-        clerkSessionId,
-      );
-      expect(UserService.findOrCreateUserByDiscordUserId).toHaveBeenCalledWith(
-        discordUserId,
-      );
     });
 
     it("should return 500 internal server error when an error occurs", async () => {
-      ClerkService.getUserDiscordAccessToken = vi
+      const EXPECTED_ERROR_CODE = 500;
+
+      ClerkService.init = vi.fn();
+      ClerkService.getInstance = vi.fn();
+
+      SupabaseServiceFactory.createService = vi
         .fn()
         .mockRejectedValue(new Error());
 
