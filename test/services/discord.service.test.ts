@@ -32,7 +32,9 @@ describe("DiscordService", () => {
 
       mockedFetch.mockResolvedValue(mockedResponse);
 
-      const result = await DiscordService.findUserInServer(discordAccessToken);
+      const discordService = new DiscordService();
+
+      const result = await discordService.findUserInServer(discordAccessToken);
 
       expect(result).toEqual({ found: true, id: discordUserId });
       expect(mockedFetch).toHaveBeenCalledWith(...expectedFetchArgs);
@@ -46,7 +48,9 @@ describe("DiscordService", () => {
 
       mockedFetch.mockResolvedValue(mockedResponse);
 
-      const result = await DiscordService.findUserInServer(discordAccessToken);
+      const discordService = new DiscordService();
+
+      const result = await discordService.findUserInServer(discordAccessToken);
 
       expect(result).toEqual({ found: false });
       expect(mockedFetch).toHaveBeenCalledWith(...expectedFetchArgs);
