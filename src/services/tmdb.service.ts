@@ -1,9 +1,12 @@
 import { env } from "@config/environment";
 import { Program } from "@models/program.model";
+import { ServiceResult } from "@models/service-result.model";
 import { GenreId, GENRES, QueryData } from "@models/tmdb.model";
 
 export class TmdbService {
-  public static async getMovie(imdbId: string): Promise<Program> {
+  public static async getMovie(
+    imdbId: string,
+  ): Promise<ServiceResult<Program>> {
     const response = await fetch(
       `https://api.themoviedb.org/3/find/${imdbId}?external_source=imdb_id`,
       {
@@ -20,9 +23,15 @@ export class TmdbService {
         movie_results: [movie],
       } = (await response.json()) as QueryData;
 
-      return { ...this.transformData({ data: movie, type: "movie" }), imdbId };
+      if (!movie) {
+        return { error: "Failed to fetch movie data" };
+      }
+
+      return {
+        data: { ...this.transformData({ data: movie, type: "movie" }), imdbId },
+      };
     } else {
-      throw new Error("Failed to fetch movie data");
+      throw new Error(`Request to TMDb API failed`);
     }
   }
 
