@@ -6,4 +6,5 @@ export const env = {
   PORT: process.env.PORT || 4000,
   SUPABASE_KEY: process.env.SUPABASE_KEY,
   SUPABASE_URL: process.env.SUPABASE_URL,
+  TMDB_API_KEY: process.env.TMDB_API_KEY,
 };
