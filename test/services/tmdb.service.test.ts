@@ -4,16 +4,15 @@ import { describe, expect, it } from "vitest";
 
 describe("TmdbService", () => {
   it("should return movie data", async () => {
-    const movieData = await TmdbService.getMovie("tt12311620");
+    const imdbId = "tt123456";
+    const movieData = await TmdbService.getMovie(imdbId);
 
-    expect(movieData).toBeDefined();
     expect(movieData).toMatchObject<Program>({
-      title: expect.any(String),
+      title: "Movie title",
       type: "movie",
-      imageSrc: expect.any(String),
-      imdbId: "tt12311620",
-      posterUrl: expect.any(String),
-      genres: expect.any(Array),
+      imdbId,
+      posterUrl: "https://image.tmdb.org/t/p/w500/movie_poster.jpg",
+      genres: ["Action", "Action & Adventure", "Adventure"],
     });
   });
 });
