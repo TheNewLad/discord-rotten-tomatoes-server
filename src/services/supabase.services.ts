@@ -1,47 +1,43 @@
 import { env } from "@config/environment";
-import { Database } from "@models/database.model";
 import { User } from "@models/user.model";
-import { ClerkService } from "@services/clerk.services";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseToken } from "@services/clerk.services";
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = env.SUPABASE_URL;
 const supabaseKey = env.SUPABASE_KEY;
 
-export class SupabaseService {
-  private supabase: SupabaseClient<Database>;
+const createSupabaseClient = (clerkSessionId: string) => {
+  const supabaseToken = getSupabaseToken(clerkSessionId);
 
-  constructor(token: string) {
-    this.supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-    });
-  }
+  return createClient(supabaseUrl, supabaseKey, {
+    global: { headers: { Authorization: `Bearer ${supabaseToken}` } },
+  });
+};
 
-  public async findOrCreateUserByDiscordUserId(
-    discordUserId: string,
-  ): Promise<User> {
-    const { data, error } = await this.supabase
-      .from("users")
-      .upsert(
-        { discord_user_id: discordUserId },
-        { onConflict: "discord_user_id" },
-      )
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to find or create user: ${error.message}`);
-    }
-
-    return data;
-  }
+interface FindOrCreateSupabaseUserByDiscordUserIdProps {
+  discordUserId: string;
+  clerkSessionId: string;
 }
 
-export class SupabaseServiceFactory {
-  public static async createService() {
-    console.info("Creating Supabase service");
-    const token = await ClerkService.getInstance().getSupabaseToken();
+export const findOrCreateSupabaseUserByDiscordUserId = async ({
+  discordUserId,
+  clerkSessionId,
+}: FindOrCreateSupabaseUserByDiscordUserIdProps): Promise<User> => {
+  const supabase = createSupabaseClient(clerkSessionId);
 
-    console.info("Supabase service created");
-    return new SupabaseService(token);
+  const { data, error } = await supabase
+    .from("users")
+    .upsert(
+      { discord_user_id: discordUserId },
+      { onConflict: "discord_user_id" },
+    )
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error.message);
+    throw new Error(`Failed to find or create user.`);
   }
-}
+
+  return data;
+};

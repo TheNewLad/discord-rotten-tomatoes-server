@@ -1,74 +1,51 @@
 import { User } from "@models/user.model";
-import { DiscordService } from "@services/discord.services";
-import { SupabaseService } from "@services/supabase.services";
-import { ClerkService } from "./clerk.services.js";
+import {
+  getDiscordAccessToken,
+  revokeClerkUserSession,
+  updateClerkUserMetadata,
+} from "@services/clerk.services";
+import { findUserInDiscordServer } from "@services/discord.services";
+import { findOrCreateSupabaseUserByDiscordUserId } from "@services/supabase.services";
 
-interface UserValidationResponse {
-  status: number;
-  body: { message: string; user?: User };
+interface ClerkIdentity {
+  clerkSessionId: string;
+  clerkUserId: string;
 }
 
-export class UserService {
-  private clerkService: ClerkService;
-  private discordService: DiscordService;
-  private supabaseService: SupabaseService;
+export type UserValidationResult =
+  | { success: true; user: User }
+  | { success: false };
 
-  constructor(
-    clerkService: ClerkService,
-    discordService: DiscordService,
-    supabaseService: SupabaseService,
-  ) {
-    this.clerkService = clerkService;
-    this.discordService = discordService;
-    this.supabaseService = supabaseService;
-  }
+export const validateUser = async ({
+  clerkSessionId,
+  clerkUserId,
+}: ClerkIdentity): Promise<UserValidationResult> => {
+  try {
+    const discordAccessToken = await getDiscordAccessToken(clerkUserId);
 
-  private async getDiscordOauthToken(): Promise<string> {
-    const discordOauthToken =
-      await this.clerkService.getUserDiscordAccessToken();
+    const discordUserPresence =
+      await findUserInDiscordServer(discordAccessToken);
 
-    if (!discordOauthToken) {
-      throw new Error("User does not have a Discord OAuth token");
+    if (!discordUserPresence.found) {
+      await revokeClerkUserSession(clerkSessionId);
+
+      return {
+        success: false,
+      };
     }
 
-    return discordOauthToken;
+    const user: User = await findOrCreateSupabaseUserByDiscordUserId({
+      clerkSessionId: clerkSessionId,
+      discordUserId: discordUserPresence.id,
+    });
+
+    await updateClerkUserMetadata({
+      metadata: { publicMetadata: { app_user_id: user.id } },
+      userId: clerkUserId,
+    });
+
+    return { success: true, user };
+  } catch (error) {
+    throw new Error(`Error validating user: ${error}`);
   }
-
-  public async findOrCreateUserByDiscordUserId(
-    discordUserId: string,
-  ): Promise<User> {
-    return await this.supabaseService.findOrCreateUserByDiscordUserId(
-      discordUserId,
-    );
-  }
-
-  async validateUser(): Promise<UserValidationResponse> {
-    try {
-      const discordAccessToken = await this.getDiscordOauthToken();
-
-      const discordUserPresence =
-        await this.discordService.findUserInServer(discordAccessToken);
-
-      if (!discordUserPresence.found) {
-        await this.clerkService.revokeUserSession();
-        return {
-          status: 403,
-          body: { message: "User is not in Discord server." },
-        };
-      }
-
-      const user = await this.findOrCreateUserByDiscordUserId(
-        discordUserPresence.id,
-      );
-
-      await this.clerkService.updateUserMetadata({
-        publicMetadata: { app_user_id: user.id },
-      });
-
-      return { status: 200, body: { message: "User validated", user } };
-    } catch (error) {
-      console.error("Error validating user:", error);
-      return { status: 500, body: { message: "Internal server error." } };
-    }
-  }
-}
+};

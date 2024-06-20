@@ -1,37 +1,29 @@
 import { StrictAuthProp } from "@clerk/clerk-sdk-node";
-import { ClerkService } from "@services/clerk.services";
-import { DiscordService } from "@services/discord.services";
-import { SupabaseServiceFactory } from "@services/supabase.services";
-import { UserService } from "@services/user.services";
+import { validateUser as validateUserInService } from "@services/user.services";
 import { Request, Response } from "express";
 
-const validateUser = async (req: Request & StrictAuthProp, res: Response) => {
+export const validateUser = async (
+  req: Request & StrictAuthProp,
+  res: Response,
+) => {
   const { userId: clerkUserId, sessionId: clerkSessionId } = req.auth;
 
   try {
-    ClerkService.init({ userId: clerkUserId, sessionId: clerkSessionId });
+    const result = await validateUserInService({
+      clerkUserId,
+      clerkSessionId,
+    });
 
-    const clerkService = ClerkService.getInstance();
-    const discordService = new DiscordService();
+    if (!result.success) {
+      return res.status(403).json({ message: "User is not authorized." });
+    }
 
-    const supabaseService = await SupabaseServiceFactory.createService();
-
-    const userService = new UserService(
-      clerkService,
-      discordService,
-      supabaseService,
-    );
-
-    const { status, body } = await userService.validateUser();
-
-    return res.status(status).json({ ...body });
+    return res
+      .status(200)
+      .json({ message: "User is authorized.", user: result.user });
   } catch (error) {
-    console.error("Error validating user:", error);
+    console.error(error.message);
 
     return res.status(500).json({ message: "Internal server error." });
   }
-};
-
-export const UserController = {
-  validateUser,
 };

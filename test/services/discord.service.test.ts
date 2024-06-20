@@ -1,5 +1,5 @@
 import { env } from "@config/environment";
-import { DiscordService } from "@services/discord.services";
+import { findUserInDiscordServer } from "@services/discord.services";
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 describe("DiscordService", () => {
@@ -32,9 +32,7 @@ describe("DiscordService", () => {
 
       mockedFetch.mockResolvedValue(mockedResponse);
 
-      const discordService = new DiscordService();
-
-      const result = await discordService.findUserInServer(discordAccessToken);
+      const result = await findUserInDiscordServer(discordAccessToken);
 
       expect(result).toEqual({ found: true, id: discordUserId });
       expect(mockedFetch).toHaveBeenCalledWith(...expectedFetchArgs);
@@ -48,9 +46,7 @@ describe("DiscordService", () => {
 
       mockedFetch.mockResolvedValue(mockedResponse);
 
-      const discordService = new DiscordService();
-
-      const result = await discordService.findUserInServer(discordAccessToken);
+      const result = await findUserInDiscordServer(discordAccessToken);
 
       expect(result).toEqual({ found: false });
       expect(mockedFetch).toHaveBeenCalledWith(...expectedFetchArgs);

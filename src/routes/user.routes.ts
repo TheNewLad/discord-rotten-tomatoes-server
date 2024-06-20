@@ -1,8 +1,8 @@
-import { UserController } from "@controllers/user.controllers";
+import { validateUser } from "@controllers/user.controllers";
 import express from "express";
 
 const router = express.Router();
 
-router.post("/", UserController.validateUser);
+router.post("/", validateUser);
 
 export { router as UserRoutes };
