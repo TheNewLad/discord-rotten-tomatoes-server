@@ -18,7 +18,7 @@ This API allows users to sign in with Discord to access and rate TV shows and mo
 Ensure you have the following installed:
 
 - Node.js (v14 or higher)
-- npm or yarn
+- npm
 - Clerk account for authentication
 - Supabase account for user data
 - TMDB API key
