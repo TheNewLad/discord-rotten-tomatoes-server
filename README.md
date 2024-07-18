@@ -4,7 +4,7 @@ This API allows users to sign in with Discord to access and rate TV shows and mo
 
 ## Technologies Used
 
-- **Frontend**: React, Tailwind CSS
+- **Frontend [(Link)](https://github.com/TheNewLad/discord-rotten-tomatoes-client)**: React, Tailwind CSS
 - **Backend**: Node.js, Express
 - **Database**: Supabase
 - **Authentication**: Clerk, Discord OAuth
@@ -51,6 +51,7 @@ Ensure you have the following installed:
    SUPABASE_URL=your_supabase_url
    SUPABASE_KEY=your_supabase_key
    TMDB_API_KEY=your_tmdb_api_key
+   PORT=port_to_run_server // defaults to 4000 if not provided
    ```
 
 4. **Start the development server**
@@ -59,12 +60,6 @@ Ensure you have the following installed:
 
    ```bash
    npm start
-   ```
-
-   Or using yarn:
-
-   ```bash
-   yarn start
    ```
 
    The server should now be running at `http://localhost:3000`.
