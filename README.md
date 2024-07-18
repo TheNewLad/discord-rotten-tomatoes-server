@@ -62,7 +62,7 @@ Ensure you have the following installed:
    npm start
    ```
 
-   The server should now be running at `http://localhost:3000`.
+   The server should now be running at `http://localhost:{PORT}`.
 
 ### Running Tests
 
