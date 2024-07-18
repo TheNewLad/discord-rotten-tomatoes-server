@@ -59,7 +59,7 @@ Ensure you have the following installed:
    Using npm:
 
    ```bash
-   npm start
+   npm run dev
    ```
 
    The server should now be running at `http://localhost:{PORT}`.
